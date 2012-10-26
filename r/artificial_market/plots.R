@@ -1,9 +1,10 @@
-source("~/git/workspace/java/ArtificialMarket-Chi-201206/r/global.R")
-INDEX = "5"
+source("~/git/artificial_market/r/global.R")
+FOLDER = "rf-nn-09-0.9-0.1/"
+INDEX = "0"
 
 # output
-postscript(file="figure.eps", onefile=FALSE, horizontal=FALSE, 
-           width=5, height=8, paper="special")
+#postscript(file="fig.eps", onefile=FALSE, horizontal=FALSE, width=5, height=8, paper="special")
+png(file=paste("fig/", chartr(old="/",new="-",x=FOLDER), INDEX, ".png", sep=""), width=5000, height=2000)
 
 # read data
 d <- read.table(paste(ROOT, FOLDER, FILE, INDEX, sep=""), header=TRUE, sep=",")
@@ -17,11 +18,11 @@ par(mar=c(3,2.9,0.2,4))
 
 # p_f_t, p_t
 if (T) {
-  if (F) {
+  if (T) {
     t <- range(d$lt)
     price <- range(d$p_f_t)
   } else {
-    t <- range(19000:25000)
+    t <- range(20000:25000)
     price <- range(240:340)
   }
   plot(t, price, type="n", xlab="")

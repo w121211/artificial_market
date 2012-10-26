@@ -42,9 +42,9 @@ public class Market implements Global {
 		agents = new HashMap<String, Agent>();
 		t = 0;
 		lt = 0;
-		p_t = new double[1000000];
+		p_t = new double[10000000];
 		p_t[t] = p_f_0;
-		p_lt = new double[1000000];
+		p_lt = new double[10000000];
 		p_lt[lt] = p_f_0;
 		p_f_t = p_f_0;
 		p_trade_t = 0d;

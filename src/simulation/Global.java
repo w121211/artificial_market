@@ -3,14 +3,14 @@ package simulation;
 public interface Global {
 	
 	// simulation Settings
-	int LFT_AGENT_NUMBER = 10000;
-	int HFT_AGENT_NUMBER = 0;
+	int LFT_AGENT_NUMBER = 10000;	// default: 10,000
+	int HFT_AGENT_NUMBER = 9;		// default: 9
 	int SIMULATION_LFT_TIME = 50000;
 	int TRAINING_INITIAL_LFT_T = 100;
 	int TRAINING_LFT_T = 10;
-	int SIMULATION_RUN = 10;
-	boolean IS_LEARNING = true;
-		
+	int SIMULATION_RUN = 100;
+	boolean IS_LEARNING = false;
+
 	// initial market setting
 	boolean IS_RANDOM_WALK = true;
 	double tick = 0.0005;
@@ -22,8 +22,8 @@ public interface Global {
 	double theta = tick;			// static theta
 	//double theta_mu = 0d;			// dynamic theta, average 
 	//double theta_sigma = 0.01d;	// dynamic theta, variance
-	double lambda_mu = 0.3d;
-	double lambda_sd = 0.3d;
+	double lambda_mu = 0.9d;
+	double lambda_sd = 0.1d;
 	double lambda_k = 0.05;			// maximum incremental value of learning
 	double tau_h = 1d;				// reference time horizon
 	double rho = 0.001d;			// reference probability to sell or buy
