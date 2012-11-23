@@ -8,7 +8,7 @@ import market.Market;
 
 public class MarketLftRecord extends Record {
 	
-	public int lt;
+//	public int lt;
 	public double p_f_t;
 	public double p_lt;
 	public DescriptiveStatistics hftWealth;

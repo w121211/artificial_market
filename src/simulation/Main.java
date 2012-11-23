@@ -15,20 +15,35 @@ public class Main implements Global {
 			path += "/log/";
 			/*
 			 * Filename: [rf,sf]-[ll,nl]-[%hft_num%]-[%lambda_mu%]-[%lambda_sd%]
-			 * rf: random walk fundamental price
+			 * rf: random walk of fundamental price
 			 * sf: static fundamental price
 			 * ll: learning
 			 * nn: no learning
+			 * rr: random hft agents
 			 *  
 			 */
 			if (IS_RANDOM_WALK)
 				path += "rf-";		// random walk fundamental price
 			else
 				path += "sf-";		// static fundamental price
+			
+			switch(HFT_STRATEGY) {
+			case POSITION_MARKET_MAKING:
+				path += "pm-";	// position market maker
+				break;
+			case RANDOM:
+				path += "rt-";	// random trader
+				break;
+			case SIMPLE_MARKET_MAKING:
+				path += "sm-";	// simple market maker
+				break;
+			}
+			
 			if (IS_LEARNING)
 				path += "ll-";		// learning
 			else
 				path += "nn-";		// non-learning
+			
 			path += new DecimalFormat("00").format(HFT_AGENT_NUMBER);
 			path += String.format("-%.1f-%.1f", lambda_mu, lambda_sd);
 			Log log = new Log(path, i);

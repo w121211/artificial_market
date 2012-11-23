@@ -1,6 +1,6 @@
 source("global.R")
 library("PerformanceAnalytics")
-FOLDER = "rf-nn-00-0.1-0.1/"
+FOLDER = "rf-rr-09-0.9-0.1/"
 
 #############
 # crashes   #

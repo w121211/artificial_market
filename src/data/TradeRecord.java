@@ -9,6 +9,8 @@ public class TradeRecord extends Record {
 	public Order.Buysell buysell;
 	public int volume;
 	public double price;
+	public String demandAgentType;
+	public String supplyAgentType;
 	
 	public TradeRecord( int t,
 						String demandAgentId,
@@ -23,14 +25,21 @@ public class TradeRecord extends Record {
 		this.buysell = buysell;
 		this.volume = volume;
 		this.price = price;
-		
+		if (demandAgentId.contains("H"))
+			this.demandAgentType = "H";
+		else if (demandAgentId.contains("L"))
+			this.demandAgentType = "L";
+		if (supplyAgentId.contains("H"))
+			this.supplyAgentType = "H";
+		else if (supplyAgentId.contains("L"))
+			this.supplyAgentType = "L";
 	}
 	
 	public static String getHeader() {
 		return new String(
 				"t," +
-				"demandAgentId," +
-				"supplyAgentId," +
+				"demandAgentType," +
+				"supplyAgentType," +
 				"buysell," +
 				"volume," +
 				"price");
@@ -41,8 +50,8 @@ public class TradeRecord extends Record {
 		String format = "%d,%s,%s,%s,%d,%.4f\n";
 		return String.format(format,
 				t,
-				demandAgentId,
-				supplyAgentId,
+				demandAgentType,
+				supplyAgentType,
 				buysell,
 				volume,
 				price);

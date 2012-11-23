@@ -12,6 +12,7 @@ public class LftAgent extends Agent implements Global {
 	double g_i_3;		// weight of noise
 	int tau_i;			// time horizon of agent
 	//double alpha_i;		// relative risk aversion
+	int s_i;			// buy/sell volume
 	
 	double k_i;			// bid ask quote weight
 	Random random;
@@ -19,11 +20,7 @@ public class LftAgent extends Agent implements Global {
 	double r_hat_i;		// expected return
 	double p_hat_i;		// expected price
 	
-	double b_i_t;		// bid price by agent i at time t
-	double a_i_t;		// ask price by agent i at time t
-	
 	LftAgent(String id) {
-		
 		this.id = id;
 		random = new Random();
 		
@@ -31,7 +28,7 @@ public class LftAgent extends Agent implements Global {
 		g_i_2 = random.nextGaussian() * g_2_sigma + g_2_mu;
 		g_i_3 = Math.abs( random.nextGaussian() * g_3_sigma + g_3_mu );
 		tau_i = (int)(tau_lft * (1 + g_i_1) / (1 + Math.abs(g_i_2)));
-		
+		s_i = (int)(s_lft * (1 + g_i_1) / (1 + Math.abs(g_i_2))) + 1;
 		//System.out.println("agent:" + this.toString());
 	}
 	
@@ -64,10 +61,10 @@ public class LftAgent extends Agent implements Global {
 		double k_t = random.nextDouble() * k - k/2;
 		double p = p_hat_i * (1 + k_t);
 		if (p_hat_i < p_t[t]) {
-			odrList.add(new Order(id, 10000000, Order.Type.LIMIT, Order.Buysell.SELL, p, s_i));
+			odrList.add(new Order(id, Order.TimeStep.LFT, tau_i, Order.Type.LIMIT, Order.Buysell.SELL, p, s_i));
 		}
 		if (p_hat_i > p_t[t]) {
-			odrList.add(new Order(id, 10000000, Order.Type.LIMIT, Order.Buysell.BUY, p, s_i));
+			odrList.add(new Order(id, Order.TimeStep.LFT, tau_i, Order.Type.LIMIT, Order.Buysell.BUY, p, s_i));
 		}
 		
 		return odrList;
@@ -75,6 +72,6 @@ public class LftAgent extends Agent implements Global {
 
 	@Override
 	public String getProperty() {
-		return String.format("{%.4f %.4f %.4f}", g_i_1, g_i_2, g_i_3);
+		return String.format("{%.4f %.4f %.4f %d}", g_i_1, g_i_2, g_i_3, tau_i);
 	}
 }

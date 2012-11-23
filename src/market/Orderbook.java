@@ -19,9 +19,11 @@ public class Orderbook {
 	}
 	
 	public void executeOrder(Order odr) {
-		
+		this.removeExpiredOrders();
+//		System.out.println("> " + odr);
+		if (odr.getPrice() <= 0) return;
 		if (odr.getType() == Order.Type.MARKET ) {
-			System.out.println("Market Order!");
+			System.out.println("Market Order is not allowed in current program");
 		} else {
 			if (odr.getBuysell() == Order.Buysell.BUY)
 				executeLimitBuyOrder(odr);
@@ -142,27 +144,19 @@ public class Orderbook {
 		
 		double buyerCash = buyer.getC_i_t();	// get agent status
 		int buyerStock = buyer.getS_i_t();
-		double sellerCash = seller.getC_i_t();
-		int sellerStock = seller.getS_i_t();
-		
 		buyer.setC_i_t(buyerCash - (price * volume));		// update buyer status
 		buyer.setS_i_t(buyerStock + volume);
+		
+		double sellerCash = seller.getC_i_t();
+		int sellerStock = seller.getS_i_t();
 		seller.setC_i_t(sellerCash + (price * volume));	// update seller status
 		seller.setS_i_t(sellerStock - volume);
 		Market.p_trade_t = price;		// update transaction price
 		
-		/*
-		double buyerCash = Market.agents.get(buyerId).getC_i_t();	// get agent status
-		int buyerStock = Market.agents.get(buyerId).getS_i_t();
-		double sellerCash = Market.agents.get(sellerId).getC_i_t();
-		int sellerStock = Market.agents.get(sellerId).getS_i_t();
-		
-		Market.agents.get(buyerId).setC_i_t(buyerCash - (price * volume));		// update buyer status
-		Market.agents.get(buyerId).setS_i_t(buyerStock + volume);
-		Market.agents.get(sellerId).setC_i_t(sellerCash + (price * volume));	// update seller status
-		Market.agents[sellerId].setS_i_t(sellerStock - volume);
-		Market.p_trade_t = price;		// update transaction price
-		*/
+//		System.out.println(String.format("\n=== trade t: %d===", Market.t));
+//		System.out.println(String.format("buyer: %s %d %d", buyer.id, buyerStock, buyer.S_i_t));
+//		System.out.println(String.format("seller: %s %d %d", seller.id, sellerStock, seller.S_i_t));
+//		System.out.println();
 		
 		Market.log.add(new TradeRecord(
 				Market.t,
@@ -205,24 +199,38 @@ public class Orderbook {
 		}
 	}
 	
-	public void removeExpiredOrders() {		
+	public void removeExpiredOrders() {
 		Order odr;
 		Iterator<Order> itr = orderBuyList.iterator();
 		while (itr.hasNext()) {
-	    	odr = itr.next();
-	    	if (odr.getArriveTime() + odr.getLength() < Market.t) {
-	    		orderBuyList.remove(odr);
-	    		itr = orderBuyList.iterator();
-	    	}
+			odr = itr.next();
+			if (odr.getTimeStep() == Order.TimeStep.LFT) {
+				if (odr.getArrivedTimeLT() + odr.getLength() < Market.lt) {
+					orderBuyList.remove(odr);
+		    		itr = orderBuyList.iterator();
+				}
+			} else if (odr.getTimeStep() == Order.TimeStep.TICK) {
+				if (odr.getArrivedTime() + odr.getLength() < Market.t) {
+		    		orderBuyList.remove(odr);
+		    		itr = orderBuyList.iterator();
+		    	}
+			}
 	    }
 		Collections.sort(orderBuyList, new OrderComparator());
 		
 		itr = orderSellList.iterator();
 	    while (itr.hasNext()) {
 	    	odr = itr.next();
-	    	if (odr.getArriveTime() + odr.getLength() < Market.t) {
-	    		orderSellList.remove(odr);
-    			itr = orderSellList.iterator();
+	    	if (odr.getTimeStep() == Order.TimeStep.LFT) {
+	    		if (odr.getArrivedTimeLT() + odr.getLength() < Market.lt) {
+		    		orderSellList.remove(odr);
+	    			itr = orderSellList.iterator();
+		    	}
+	    	} else if (odr.getTimeStep() == Order.TimeStep.TICK) {
+	    		if (odr.getArrivedTime() + odr.getLength() < Market.t) {
+		    		orderSellList.remove(odr);
+	    			itr = orderSellList.iterator();
+		    	}
 	    	}
 	    }
 		Collections.sort(orderSellList, new OrderComparator());
