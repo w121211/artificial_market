@@ -1,7 +1,8 @@
 source("~/git/artificial_market/r/artificial_market/global.R")
 library("PerformanceAnalytics")
-FOLDER = "SF-01.1/sf-sm-nn-10-0.5-0.1/"
+FOLDER = "SF-01.1/rf-sm-nn-00-1.0-0.0/"
 SIMULATION_RUN = 100
+
 #############
 # functions #
 #############
@@ -42,30 +43,6 @@ crashMargin <- function(t, p) {
   return(c(max(max), min(min)))
 }
 
-logReturn <- function(p) {
-  r <- rep(NA, length(p)-1)
-  for (i in 1 : length(r)) {
-    r[i] = log(p[i+1] / p[i])
-  }
-  return (r)
-}
-
-absLogReturn <- function(p) {
-  r <- rep(NA, length(p)-1)
-  for (i in 1 : length(r)) {
-    r[i] = abs(log(p[i+1] / p[i]))
-  }
-  return (r)
-}
-
-spread <- function(p) {
-  s <- rep(NA, length(p)-1)
-  for (i in 1 : length(s)) {
-    s[i] = abs(p[i+1] - p[i])
-  }
-  return (s)
-}
-
 # bulk process
 p_mu <- rep(NA, SIMULATION_RUN)      # p_t mean
 p_sd <- rep(NA, SIMULATION_RUN)      # p_t std dev, volatility
@@ -80,8 +57,8 @@ r_sd  <- rep(NA, SIMULATION_RUN)    # log return std dev
 r_min  <- rep(NA, SIMULATION_RUN)    # log return min
 r_max  <- rep(NA, SIMULATION_RUN)    # log return max
 r_kt <- rep(NA, SIMULATION_RUN)     # kurtosis of log return
-r_ac  <- rep(NA, SIMULATION_RUN)    # auto-correlation of log return
-abs_r_ac <- rep(NA, SIMULATION_RUN) # auto-correlation of absolute log return
+r_ac  <- rep(NA, SIMULATION_RUN)    # auto-correlation lag 1 of log return
+abs_r_ac <- rep(NA, SIMULATION_RUN) # auto-correlation lag 1 of absolute log return
 
 ol_bvol_mean <- rep(NA, SIMULATION_RUN) # LFT order buy volume mean
 ol_svol_mean <- rep(NA, SIMULATION_RUN) # LFT order sell volume mean
@@ -123,7 +100,7 @@ for (i in 1 : SIMULATION_RUN) {
   r_ac[i] <- acf(r, plot=FALSE)$acf[2]
   
   # absolute log return
-  abs_r_ac[i] <- acf(absLogReturn(mkt$p_lt), plot=FALSE)$acf[2]
+  abs_r_ac[i] <- acf(abs(r), plot=FALSE)$acf[2]
   
   # order volume
   FILE = 'order'

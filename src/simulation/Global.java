@@ -8,31 +8,38 @@ public interface Global {
 	}
 	enum Scenario {
 		NORMAL,
-		FLAW_TRADE,
 		CRASH;
 	}
 	
-	// simulation Settings
-	Scenario SCENARIO = Scenario.NORMAL;
-	int SIMULATION_LFT_TIME = 10000;	// default: 10,000
+	// Simulation Settings
+	Scenario SCENARIO = Scenario.CRASH;
+	int SIMULATION_LFT_TIME = 2000;		// default: 10,000
 	int SIMULATION_RUN = 100;			// default: 100
 	int LFT_AGENT_NUMBER = 10000;		// default: 10,000
-	int HFT_AGENT_NUMBER = 10;			// default: 1 to 10
+	int HFT_AGENT_NUMBER = 10;			// default: 10
 	int TRAINING_INITIAL_LFT_T = 100;	// default: 100
 	int TRAINING_LFT_T = 10;			// defulat: 10
 	
+	
+	
 	// initial market setting
-	boolean IS_RANDOM_WALK = false;
+	boolean IS_RANDOM_WALK = true;
 	double tick = 0.0005;			// default = 0.0005
 	double p_f_mu = 0;				// fundamental price, geometric Brownian motion, percentage drift
-	double p_f_sigma = 1E-4;		// fundamental price, geometric Brownian motion, percentage volatility
+	double p_f_sigma = 1E-3;		// fundamental price, geometric Brownian motion, percentage volatility
 	double p_f_0 = 100d;			// fundamental price
+	int ORDER_MIN_LENGTH = 0;		// default: 0
+	
+	// Crash scenario settings:
+	double FALL_SPEED = tick * 0;	// 0: vertical fall, else: p_f falling speed per lt step
+		
 	
 	// market maker parameters
-	HftStrategy HFT_STRATEGY = HftStrategy.POSITION_MARKET_MAKING;
+	HftStrategy HFT_STRATEGY = HftStrategy.SIMPLE_MARKET_MAKING;
 	boolean IS_LEARNING = false;
-	double rho = 0.002d;			// reference probability to sell or buy
-	int s_hft = 5;					// buy or sell stock amount
+	double rho = 0.002d;			// reference probability to sell or buy, default: 0.002
+	int odr_hft_length = 1;			// 0: dynamic or a fixed length
+	int s_hft = 50;					// buy or sell stock amount, default: 5
 	double tau_h = 1d;				// reference time horizon
 	double lambda_mu = 1.0d;
 	double lambda_sd = 0d;

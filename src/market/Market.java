@@ -73,93 +73,9 @@ public class Market implements Global {
 		case NORMAL:
 			normalScenarioStart();
 			break;
-		case FLAW_TRADE:
-			flawTradeScenarioStart();
-			break;
 		case CRASH:
 			crashScenarioStart();
 			break;
-		}
-	}
-	
-	public void flawTradeScenarioStart() {
-		FlawLftAgent flawTrader = new FlawLftAgent("F1");
-		agents.put(flawTrader.id, flawTrader);
-		Random random = new Random();
-		t = 1;
-		lt = 1;
-		p_t[t] = p_f_0;
-		p_lt[lt] = p_f_0;
-		GeometricBrownianMotion gbm = new GeometricBrownianMotion(
-				p_f_0, p_f_mu, p_f_sigma, new MRG32k3a());
-		gbm.setObservationTimes(1, SIMULATION_LFT_TIME);
-		List<Agent> tradeWaitingList = new ArrayList<Agent>();
-		
-		for (lt = 1; lt < SIMULATION_LFT_TIME; lt++) {
-			System.out.println("[RUN]lt: " + lt);
-			tradeWaitingList.clear();
-			
-			// determine p_f_t
-			if (IS_RANDOM_WALK) {
-				p_f_t = gbm.nextObservation();
-			} else {
-				p_f_t = p_f_0;
-			}
-			
-			// check if flaw trader want to trade
-			double probToTrade = 0.2;
-			if (lt > 2000 && random.nextDouble() < probToTrade) {
-				tradeWaitingList.add(flawTrader);
-			} else {
-				// select one stylized trader randomly, then put to trade waiting list
-				if (LFT_AGENT_NUMBER > 0) {
-					int i = (int)(random.nextDouble() * LFT_AGENT_NUMBER);
-					tradeWaitingList.add(agents.get("L" + i));
-				}
-			}
-			
-			// check each market maker's willingness to trade, then put to trade waiting list
-			for (HftAgent agent : marketMakers) {
-				if (agent.lambda_m > random.nextDouble())
-					tradeWaitingList.add(agent);
-			}
-			
-			// process waiting list, randomly choose one trader to trade then remove from list, loop
-			boolean isLftTrade = false;
-			while (!tradeWaitingList.isEmpty()) {
-				int i;
-				if (!isLftTrade) {
-					i = 0;
-					isLftTrade = true;
-				} else
-					i = random.nextInt(tradeWaitingList.size());
-				
-				Agent agent = tradeWaitingList.get(i);
-				List<Order> odrs = agent.action();
-				if (!odrs.isEmpty()) {
-					for (Order odr : odrs) {
-						odr.setArrivedTimes(t, lt);
-//						log.add(new OrderRecord(odr));
-						orderbook.executeOrder(odr);
-						this.update();
-						t++;
-					}
-				}
-				tradeWaitingList.remove(i);
-			}
-			
-			// learning
-			if (IS_LEARNING) {
-				if (lt > TRAINING_INITIAL_LFT_T && 
-						lt % TRAINING_LFT_T == 0) {
-					this.learning();
-				}
-			}
-			
-			// update lt
-			p_lt[lt+1] = p_t[t];
-			log.add(new MarketLftRecord(this));
-			log.add(new OrderbookRecord(lt, p_t[t], orderbook));
 		}
 	}
 	
@@ -169,9 +85,6 @@ public class Market implements Global {
 		lt = 1;
 		p_t[t] = p_f_0;
 		p_lt[lt] = p_f_0;
-		GeometricBrownianMotion gbm = new GeometricBrownianMotion(
-				p_f_0, p_f_mu, p_f_sigma, new MRG32k3a());
-		gbm.setObservationTimes(1, SIMULATION_LFT_TIME);
 		List<Agent> tradeWaitingList = new ArrayList<Agent>();
 		
 		for (lt = 1; lt < SIMULATION_LFT_TIME; lt++) {
@@ -179,13 +92,15 @@ public class Market implements Global {
 			tradeWaitingList.clear();
 			
 			// determine p_f_t
-			int divisionTime = 2000;
-			double priceSlope = tick * -20;
-			if (IS_RANDOM_WALK) {
-				p_f_t = gbm.nextObservation();
-			} else if (lt > divisionTime) {
-				// start division
-				p_f_t = priceSlope * (lt - divisionTime) + p_f_0; 
+			int t1 = 1000;
+			double p1 = 90;
+			if (lt > t1) {
+				if (FALL_SPEED > 0) {
+					if (p_f_t <= p1) p_f_t = p1;
+					else p_f_t = p_f_0 + FALL_SPEED * (lt - t1);
+				} else {
+					p_f_t = p1;
+				}
 			} else {
 				p_f_t = p_f_0;
 			}
@@ -224,14 +139,6 @@ public class Market implements Global {
 					}
 				}
 				tradeWaitingList.remove(i);
-			}
-			
-			// learning
-			if (IS_LEARNING) {
-				if (lt > TRAINING_INITIAL_LFT_T && 
-						lt % TRAINING_LFT_T == 0) {
-					this.learning();
-				}
 			}
 			
 			// update lt
@@ -291,6 +198,8 @@ public class Market implements Global {
 				List<Order> odrs = agent.action();
 				if (!odrs.isEmpty()) {
 					for (Order odr : odrs) {
+						if (odr.getLength() < ORDER_MIN_LENGTH)
+							odr.setLength(ORDER_MIN_LENGTH);
 						odr.setArrivedTimes(t, lt);
 						log.add(new OrderRecord(odr));
 						orderbook.executeOrder(odr);

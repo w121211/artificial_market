@@ -45,7 +45,8 @@ public class Main implements Global {
 				path += "nn-";		// non-learning
 			
 			path += new DecimalFormat("00").format(HFT_AGENT_NUMBER);
-			path += String.format("-%.1f-%.1f", lambda_mu, lambda_sd);
+			path += String.format("-%.1f-%.2f-%d-%d-%.4f", 
+					lambda_mu, lambda_sd, odr_hft_length, s_hft, rho);
 			Log log = new Log(path, i);
 			
 			Market market = new Market(log);

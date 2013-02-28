@@ -23,7 +23,10 @@ public class HftAgent extends Agent implements Global {
 		theta_b = theta;
 		theta_s = theta;
 		this.setLambda(Math.abs( random.nextGaussian() * lambda_sd + lambda_mu ));
-		tau_m = (int)(1 / lambda_m);
+		if (odr_hft_length > 0)
+			tau_m = odr_hft_length;
+		else
+			tau_m = (int)(1 / lambda_m);
 	}
 	
 	public List<Order> action() {

@@ -13,35 +13,12 @@ public class OrderbookRecord extends Record {
 	
 	private String odrList;
 	
-	public OrderbookRecord(int t, double p, Orderbook orderbook) {
-		this.t = t;	
+	public OrderbookRecord(int lt, double p, Orderbook orderbook) {
+		this.lt = lt;	
 		hftBuyDepth = new int[pricePercent.length];
 		hftSellDepth = new int[pricePercent.length];
 		lftBuyDepth = new int[pricePercent.length];
 		lftSellDepth = new int[pricePercent.length];
-		
-		/*
-		String format = "%d,%d,%s,%d,%s,%f,%d\n";
-		for (Order odr : orderbook.getOrderBuyList()) {
-			odrList += String.format(format, 
-					t,
-					odr.getId(),
-					odr.getAgentID(),
-					odr.getLength(),
-					odr.getBuysell(),
-					odr.getPrice(),
-					odr.getVolume());
-		}
-		for (Order odr : orderbook.getOrderSellList()) {
-			odrList += String.format(format, 
-					t,
-					odr.getId(),
-					odr.getAgentID(),
-					odr.getLength(),
-					odr.getBuysell(),
-					odr.getPrice(),
-					odr.getVolume());
-		}*/
 		
 		for (Order odr : orderbook.getOrderBuyList()) {
 			for (int i = 0; i < pricePercent.length; i++) {
@@ -68,7 +45,7 @@ public class OrderbookRecord extends Record {
 			}
 		}
 		odrList = "";
-		odrList += t + "," + p + ",";
+		odrList += lt + "," + p + ",";
 		this.addRecord(hftBuyDepth);
 		this.addRecord(hftSellDepth);
 		this.addRecord(lftBuyDepth);
@@ -83,7 +60,7 @@ public class OrderbookRecord extends Record {
 	}
 	
 	public static String getHeader() {
-		return new String("t,p,hb1,hb2,hba,hs1,hs2,hsa,lb1,lb2,lba,ls1,ls2,lsa,");
+		return new String("lt,p,hb1,hb2,hba,hs1,hs2,hsa,lb1,lb2,lba,ls1,ls2,lsa,");
 	}
 	
 	public String toString() { return odrList; }
